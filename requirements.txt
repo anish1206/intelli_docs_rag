@@ -2,12 +2,17 @@ langchain
 langchain-core
 langchain-community
 langchain-google-genai
+langchain-ollama
+langchain-text-splitters
 pypdf
 pymupdf
 sentence-transformers
+scikit-learn
+numpy
 faiss-cpu
 chromadb
 docling
+langchain-docling
 ragas>=0.4
 pandas
 datasets
