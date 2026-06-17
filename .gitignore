@@ -1,0 +1,19 @@
+venv/
+.env
+__pycache__/
+*.pyc
+*.pyo
+
+# Vector store (binary/DB files, can be rebuilt)
+data/vector_store/
+
+# Eval result logs (generated artifacts)
+eval/eval_results_*.json
+eval/eval_summary_*.csv
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Node
+node_modules/
+package-lock.json

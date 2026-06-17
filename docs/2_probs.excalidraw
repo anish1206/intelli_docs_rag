@@ -1,0 +1,152 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://marketplace.visualstudio.com/items?itemName=pomdtr.excalidraw-editor",
+  "elements": [
+    {
+      "id": "b7zhHm6EZYaLYehsMCtQ-",
+      "type": "text",
+      "x": 132.80001831054688,
+      "y": 237.6000213623047,
+      "width": 572.3596801757812,
+      "height": 75,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a1",
+      "roundness": null,
+      "seed": 128109674,
+      "version": 311,
+      "versionNonce": 607672106,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "kDzqRC9c9cRIEqJsWSiRB",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1780854267333,
+      "link": null,
+      "locked": false,
+      "text": "1. Using docling, i was sending the entire pdf for chunking\nso i was getting some bad memory allocation error, due to \nwhich the number of chunks generated were lesser",
+      "fontSize": 20,
+      "fontFamily": 5,
+      "textAlign": "left",
+      "verticalAlign": "top",
+      "containerId": null,
+      "originalText": "1. Using docling, i was sending the entire pdf for chunking\nso i was getting some bad memory allocation error, due to \nwhich the number of chunks generated were lesser",
+      "autoResize": true,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "84_rV2AViqK6WNm5RI7ia",
+      "type": "text",
+      "x": 849.8573521205358,
+      "y": 235.5143476213728,
+      "width": 389.9997253417969,
+      "height": 75,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a2",
+      "roundness": null,
+      "seed": 1653852918,
+      "version": 159,
+      "versionNonce": 2010595190,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "id": "kDzqRC9c9cRIEqJsWSiRB",
+          "type": "arrow"
+        }
+      ],
+      "updated": 1780854273211,
+      "link": null,
+      "locked": false,
+      "text": "FIX:\nInstead of sending the entire document\nsended it page by page",
+      "fontSize": 20,
+      "fontFamily": 5,
+      "textAlign": "left",
+      "verticalAlign": "top",
+      "containerId": null,
+      "originalText": "FIX:\nInstead of sending the entire document\nsended it page by page",
+      "autoResize": true,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "kDzqRC9c9cRIEqJsWSiRB",
+      "type": "arrow",
+      "x": 717.999982561384,
+      "y": 264.26966341197067,
+      "width": 121.14292689732167,
+      "height": 2.73936535854574,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a4",
+      "roundness": {
+        "type": 2
+      },
+      "seed": 1620524202,
+      "version": 117,
+      "versionNonce": 2080412982,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1780854287291,
+      "link": null,
+      "locked": false,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          121.14292689732167,
+          -2.73936535854574
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": {
+        "elementId": "b7zhHm6EZYaLYehsMCtQ-",
+        "focus": -0.092531141270822,
+        "gap": 12.84028407505582
+      },
+      "endBinding": {
+        "elementId": "84_rV2AViqK6WNm5RI7ia",
+        "focus": 0.3850156198515698,
+        "gap": 10.714442661830162
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "elbowed": false
+    }
+  ],
+  "appState": {
+    "gridSize": 20,
+    "gridStep": 5,
+    "gridModeEnabled": false,
+    "viewBackgroundColor": "#ffffff"
+  },
+  "files": {}
+}

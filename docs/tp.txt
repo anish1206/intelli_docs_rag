@@ -1,0 +1,51 @@
+Purpose of the project:-
+Building very neive version of notebooklm (just textual output) for myself that can work offline
+
+
+He karaichay:-
+    - Choosing right vector store (that supports metadata filtering for hybrid search), compare and write about the choise
+    - Hybrid searching (keywords + semantic meaning), merge both results ensembler
+
+    - Choosing right embedding model , compare and write about choise, mteb leader for choosing right one
+    - Understand more about re ranking and how to improve it, what is the reranking criteria (called 2 stage retrevial) - can use cohere re-rank api
+    
+    - Handling queries (querry decomposition, query rewriting, query expansion)
+    
+    - Offline LLM (ollama)
+    - Good prompt + source showing during generation step
+    - Memory module (storing chat history, redis)
+
+    Matrices to evaluate rag and how to fix if required - Can directly use frameworks like ragas
+        - Faithfulness/hallucination - (improve retrevial quality, basically re ranking and all)
+        - Relevance - (prompt refining and adding grounding)
+        - Context precesion, out of retrevied chunks how many were actually usefull - (re ranking chunks)
+        - Context recall, how many correct chunks were rtrevied
+
+Can have these probs and how to fix them:-
+    - Empty retrevial -> re write the query and retry, use Hybrid search . if nothings workd then decline correctly that no context found
+    - Low confidence retrevial -> re ranking stratagy
+    - LLM timeout -> add timeout limit else change model
+    - Context overloading -> predict/see context size then change the top k, to be sent to the model
+
+==========================================================================================================
+
+Todo:
+[] ragas implement kru so eak evaluation matric rahil pratyek stage of project sathi
+
+[] implement this pipeline:
+
+        data/
+        ↓
+        LangChain Loaders
+        ↓
+        Chunking
+        ↓
+        Huggingface embedding model (BGE-small) 
+        ↓
+        Qdrant vector database
+        ↓
+        MultiQueryRetriever (top 10-15)
+        ↓
+        Reranker, Keep Top 3–5
+        ↓
+        Ollama 

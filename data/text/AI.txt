@@ -1,0 +1,24 @@
+Uninformed Search Strategies                                                   (5 Hours) 
+Uninformed Search Methods: Depth First Search, Breadth First Search, Depth Limited Search, 
+Iterative Deepening Depth First Search, Bidirectional Search, Comparison of Uninformed 
+search Strategies. 
+ 
+Unit-III Title: Informed Search Methods                                                        (5 Hours) 
+Generate & test, Hill Climbing, Best First Search, A* and AO* Algorithm, Constraint 
+satisfaction, Means Ends Analysis, Game playing: Minimax Search, Alpha-Beta Cut offs, 
+Waiting for Quiescence
+
+Unit-IV Title: Logical Agents                                                                                  (5 Hours) 
+Knowledge based agents, Wumpus world. Propositional Logic: Representation, Inference, Reasoning 
+Patterns, Resolution, Forward and Backward Chaining. First order Logic: Representation, Inference, 
+Reasoning Patterns, Resolution, Forward and Backward Chaining. 
+ 
+Unit-V Title: Basics of PROLOG                                                                             (4 Hours) 
+Representation, Structure, Backtracking. Expert System: Design, Implementation, Case study of Expert 
+System in PROLOG 
+ 
+Unit-VI Title: Planning                                                                                             (4 Hours) 
+Blocks world, STRIPS, Implementation using goal stack, Planning with state space search: Forward state 
+space search, Backward state space search, Heuristics for state space search. Partial Order Planning, 
+Planning Graphs, Hierarchical planning, Least commitment strategy. 
+Conditional Planning, Continuous Planning 

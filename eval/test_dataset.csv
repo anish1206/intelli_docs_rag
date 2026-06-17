@@ -1,0 +1,21 @@
+Question,Reference Answer
+What horizon value (H) was used in lookahead label generation?,The lookahead label generation used a horizon of H = 6.
+What discount factor ($\gamma$) was used during label generation?,The discount factor used was 0.97.
+How many labeled examples were included in the final training dataset?,"The final training set contained 3,168 labeled examples."
+What values were selected for the hard and soft wait guards?,The hard wait guard was 0.6684 and the soft wait guard was 0.4512.
+How many normalized jobs were present in the baseline workload?,"The baseline workload contained 46,533 normalized jobs."
+How many samples were included in the enhanced workload?,"The enhanced workload consisted of 49,314 samples."
+Which model caused the largest performance drop when removed in the ablation study?,"Removing the Random Forest (RF) caused the largest drop, 53.0%."
+What was the measured inference overhead per scheduling decision?,The overhead was approximately 68.42 ms per scheduling decision.
+Which search algorithms are listed under uninformed search strategies?,"DFS, BFS, Depth Limited Search, Iterative Deepening DFS, and Bidirectional Search."
+Which algorithm is associated with game playing alongside Alpha-Beta cutoffs?,Minimax Search.
+Why are latency guardrails important in the proposed scheduler?,They prevent the scheduler from prioritizing carbon reduction when doing so would cause unsafe queueing delays or starvation risks.
+Why is the proposed scheduler unsuitable for interactive services?,"Because interactive services prioritize strict P95/P99 latency requirements, whereas the scheduler targets delay-tolerant batch workloads."
+Why is Random Forest considered the critical component of the ensemble?,"Because removing it caused a 53% performance degradation, much larger than removing any other model."
+Why does the paper describe its findings as a safety-oriented outcome?,Because the ensemble achieved statistical parity with SRTF without catastrophically sacrificing latency to pursue carbon reduction.
+Why should production systems include carbon telemetry validation mechanisms?,"To detect missing, stale, or corrupted carbon data and safely fall back to SRTF when telemetry becomes unreliable."
+Explain the role of forward and backward chaining in logical reasoning systems.,They are inference techniques used to derive conclusions from known facts or goals in knowledge-based systems.
+How does the proposed scheduler balance carbon awareness with latency protection?,It combines carbon-aware decision making with hard and soft latency guardrails that prevent unsafe scheduling behavior.
+What evidence supports the claim that Green-First Ensemble generalizes effectively?,"The scheduler showed zero collapse events across 32 validation configurations spanning different noise levels, congestion levels, capacities, and random seeds."
+How do the identified limitations of the scheduler motivate future work?,"The limitations highlight the need for real-cluster validation, support for GPU/network-coupled workloads, and improved carbon telemetry reliability mechanisms."
+How do the enhanced workload modifications contribute to evaluating scheduler robustness?,"By introducing runtime degradation, bursty arrivals, nonlinear energy modeling, measurement noise, retries, and real-world carbon traces, they test performance under more realistic conditions."
