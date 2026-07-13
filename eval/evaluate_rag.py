@@ -128,7 +128,6 @@ def metric_retrieval_relevance(
     retrieved_docs: List[Dict],
     embedder: EmbeddingManager,
 ) -> float:
-    """Average cosine similarity between the query and each retrieved chunk."""
     from sklearn.metrics.pairwise import cosine_similarity
 
     if not retrieved_docs:
@@ -137,7 +136,8 @@ def metric_retrieval_relevance(
     q_emb = embedder.embed([query])
     c_emb = embedder.embed(chunk_texts)
     sims  = cosine_similarity(q_emb, c_emb)[0]
-    return float(np.mean(sims))
+    return float(np.mean(sorted(sims, reverse=True)[:3]))
+    # returns the mean of he top 3 high rianked chunks
 
 
 # ---------------------------------------------------------------------------
@@ -161,14 +161,15 @@ GENERATED ANSWER:
 
 Score each dimension from 0.0 to 1.0:
 
-groundedness      – every claim in the answer is supported by the retrieved context
-                    (1.0 = fully supported, 0.0 = unsupported / contradicts context)
+groundedness – every claim in the answer is supported by the retrieved context
+                (1.0 = fully supported, 0.0 = unsupported / contradicts context)
 
-answer_correctness – the generated answer matches the reference answer factually
-                    (1.0 = semantically equivalent, 0.0 = wrong / unrelated)
+answer_correctness – Evaluate factual agreement and semantic equivalence with the reference answer. Different wording should not reduce score.
+                    Score 1.0 if both answers convey the same information, even if phrased differently, else 0.0
+                    If the generated answer states that it lacks information, and the reference answer contains specific facts, answer_correctness must be 0.0.
 
-answer_relevance  – the generated answer directly addresses the question
-                    (1.0 = fully on-topic, 0.0 = completely off-topic)
+answer_relevance  – if the generated answer directly addresses the question
+                    (1.0 = fully on-topic else 0.0 when off-topic)
 
 Respond with exactly this JSON and nothing else:
 {{"groundedness": <float>, "answer_correctness": <float>, "answer_relevance": <float>}}
@@ -186,7 +187,7 @@ def metric_llm_judges(
     prompt = COMBINED_JUDGE_PROMPT.format(
         question=question,
         reference=reference,
-        context=context[:3000],
+        context=context[:6000],
         answer=answer,
     )
     raw = _call_llm_with_retry(llm, prompt)
@@ -252,6 +253,10 @@ def run_evaluation():
         collection_name=COLLECTION_NAME,
         persist_directory=VECTOR_STORE_DIR,
     )
+    print("\n Total chunks in the db:")
+    print(store.collection.count())
+    print()
+    
     retriever = RAGRetriever(store, embedder)
     llm       = build_llm()
 

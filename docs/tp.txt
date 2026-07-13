@@ -2,7 +2,7 @@ Purpose of the project:-
 Building very neive version of notebooklm (just textual output) for myself that can work offline
 
 
-He karaichay:-
+Future Plans:-
     - Choosing right vector store (that supports metadata filtering for hybrid search), compare and write about the choise
     - Hybrid searching (keywords + semantic meaning), merge both results ensembler
 
@@ -29,9 +29,17 @@ Can have these probs and how to fix them:-
 
 ==========================================================================================================
 
-Todo:
-[] ragas implement kru so eak evaluation matric rahil pratyek stage of project sathi
+To do:
+[✅] ragas implement kru so eak evaluation matric rahil pratyek stage of project sathi (ragas nahi but self made evaluation pipeline banavli)
+[✅] verfity correctness of how the evalation matrices are been calculated, as of now it is good (only prob in it is using a better model, will fix later)
+[] fixing chunking and reranking
+(fixed the post retreval, i.e. the coise similairty wala part, by adding "hsnw:space = cosise" in the metadata while creating vectore store)
+but i guess in the new rebuild vector store, there was some issue in reubilding(delete vec store test it again), fix this eror, then again run the evaluate.rag.py to check for improvement
 
+see gpt latest chat to find the next things to do
+
+
+[] fixing the retreval issue thus implementing multiquery retreval
 [] implement this pipeline:
 
         data/

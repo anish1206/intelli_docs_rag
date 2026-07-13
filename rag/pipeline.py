@@ -1,7 +1,5 @@
 """
 rag/pipeline.py
-===============
-Single source of truth for all core RAG logic.
 
 Public surface
 --------------
@@ -129,7 +127,10 @@ class VectorStore:
         self.client = chromadb.PersistentClient(path=self.persist_directory)
         self.collection = self.client.get_or_create_collection(
             name=self.collection_name,
-            metadata={"description": "Document embeddings for RAG"},
+            metadata={
+                "description": "Document embeddings for RAG",
+                "hnsw:space" : "cosine",
+            },
         )
         logger.info(
             "VectorStore ready. Collection '%s' — %d doc(s).",
@@ -245,6 +246,8 @@ class RAGRetriever:
 
         try:
             results = self.vector_store.collection.query(**query_params)
+            print("\nCOLLECTION METADATA:")
+            print(self.vector_store.collection.metadata)    
         except Exception as exc:
             logger.error("Retrieval error: %s", exc)
             return []
@@ -265,6 +268,15 @@ class RAGRetriever:
         metas     = results["metadatas"][0]
         distances = results["distances"][0]
         ids       = results["ids"][0]
+        
+        print("\n" + "="*80)
+        print("QUERY:", query)
+        print("="*80)
+
+        for i, (text, dist) in enumerate(zip(docs_raw, distances)):
+            print(f"\nRANK {i+1}")
+            print("DISTANCE:", dist)
+            print(text[:300])
 
         seen: set = set()
         ranked: List[Dict[str, Any]] = []
@@ -272,9 +284,10 @@ class RAGRetriever:
         for i, (doc_id, text, meta, dist) in enumerate(
             zip(ids, docs_raw, metas, distances)
         ):
-            sim = float(1 - dist)
-            if sim < score_threshold:
-                continue
+
+            # Chorma already returns ranked results, so lower the distance, better match 
+            sim = 1.0 - float(dist)
+
             h = hash(text)
             if h in seen:
                 continue
@@ -286,7 +299,7 @@ class RAGRetriever:
                     "content":          text,
                     "metadata":         meta,
                     "similarity_score": sim,
-                    "enhanced_score":   self._enhanced_score(text, query, sim, meta),
+                    "enhanced_score":   sim,
                     "distance":         dist,
                     "rank":             i + 1,
                     # eval-compat alias
@@ -295,7 +308,10 @@ class RAGRetriever:
             )
 
         ranked.sort(key=lambda x: x["enhanced_score"], reverse=True)
+
         return ranked[:top_k]
+
+        
 
     def _enhanced_score(
         self,
