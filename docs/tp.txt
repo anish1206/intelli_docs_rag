@@ -31,12 +31,28 @@ Can have these probs and how to fix them:-
 
 To do:
 [✅] ragas implement kru so eak evaluation matric rahil pratyek stage of project sathi (ragas nahi but self made evaluation pipeline banavli)
-[✅] verfity correctness of how the evalation matrices are been calculated, as of now it is good (only prob in it is using a better model, will fix later)
-[] fixing chunking and reranking
+[ ] verfity correctness of how the evalation matrices are been calculated, as of now it is good (only prob in it is using a better model, will fix later)
+
+[✅] fixing chunking and [] re ranking - need external lib, so not implemented yet, first fix evals ↑
 (fixed the post retreval, i.e. the coise similairty wala part, by adding "hsnw:space = cosise" in the metadata while creating vectore store)
 but i guess in the new rebuild vector store, there was some issue in reubilding(delete vec store test it again), fix this eror, then again run the evaluate.rag.py to check for improvement
 
+[✅]Fixed the vector_store rebuilding issue (ran the rebuild scrip in kaggle notebook using gpu, got more chunks and extracted the new vectore store here)
+
 see gpt latest chat to find the next things to do
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 [] fixing the retreval issue thus implementing multiquery retreval

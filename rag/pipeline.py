@@ -293,13 +293,23 @@ class RAGRetriever:
                 continue
             seen.add(h)
 
+            enhanced_score = self._enhanced_score(
+                document=text,
+                query=query,
+                similarity_score=sim,
+                metadata=meta,
+            )
+
+            if enhanced_score < score_threshold:
+                continue
+
             ranked.append(
                 {
                     "id":               doc_id,
                     "content":          text,
                     "metadata":         meta,
                     "similarity_score": sim,
-                    "enhanced_score":   sim,
+                    "enhanced_score":   enhanced_score,
                     "distance":         dist,
                     "rank":             i + 1,
                     # eval-compat alias

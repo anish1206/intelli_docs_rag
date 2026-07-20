@@ -34,7 +34,7 @@ EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
 # ---------------------------------------------------------------------------
 TOP_K: int             = 5
 MAX_CONTEXT_CHARS: int = 4000
-SCORE_THRESHOLD: float = 0.0
+SCORE_THRESHOLD: float = 0.25
 
 # ---------------------------------------------------------------------------
 # Document ingestion
