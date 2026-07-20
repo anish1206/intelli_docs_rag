@@ -9,6 +9,10 @@
   ![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=for-the-badge&logo=jupyter&logoColor=white)
   ![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white)
   ![ChromaDB](https://img.shields.io/badge/ChromaDB-000000?style=for-the-badge&logo=databricks&logoColor=FF3621)
+  ![Docling](https://img.shields.io/badge/Docling-000000?style=for-the-badge&logo=ibm&logoColor=FFB800)
+  ![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white)
+
+ 
 
 </div>
 
