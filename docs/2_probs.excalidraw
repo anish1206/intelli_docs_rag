@@ -48,10 +48,10 @@
     {
       "id": "84_rV2AViqK6WNm5RI7ia",
       "type": "text",
-      "x": 849.8573521205358,
-      "y": 235.5143476213728,
-      "width": 389.9997253417969,
-      "height": 75,
+      "x": 850.6573399135045,
+      "y": 233.91435677664623,
+      "width": 741.8595581054688,
+      "height": 100,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -65,8 +65,8 @@
       "index": "a2",
       "roundness": null,
       "seed": 1653852918,
-      "version": 159,
-      "versionNonce": 2010595190,
+      "version": 287,
+      "versionNonce": 895160338,
       "isDeleted": false,
       "boundElements": [
         {
@@ -74,16 +74,16 @@
           "type": "arrow"
         }
       ],
-      "updated": 1780854273211,
+      "updated": 1784626041425,
       "link": null,
       "locked": false,
-      "text": "FIX:\nInstead of sending the entire document\nsended it page by page",
+      "text": "FIX:\nInstead of sending the entire document\nsended it page by page (edited docling configs)\nAlso used kallge notebook (GPU with better configs to generate vec store)",
       "fontSize": 20,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "FIX:\nInstead of sending the entire document\nsended it page by page",
+      "originalText": "FIX:\nInstead of sending the entire document\nsended it page by page (edited docling configs)\nAlso used kallge notebook (GPU with better configs to generate vec store)",
       "autoResize": true,
       "lineHeight": 1.25
     },
@@ -91,9 +91,9 @@
       "id": "kDzqRC9c9cRIEqJsWSiRB",
       "type": "arrow",
       "x": 717.999982561384,
-      "y": 264.26966341197067,
-      "width": 121.14292689732167,
-      "height": 2.73936535854574,
+      "y": 268.2862880231255,
+      "width": 121.94291469029031,
+      "height": 1.235218217558554,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -109,11 +109,11 @@
         "type": 2
       },
       "seed": 1620524202,
-      "version": 117,
-      "versionNonce": 2080412982,
+      "version": 245,
+      "versionNonce": 996359634,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1780854287291,
+      "updated": 1784626041425,
       "link": null,
       "locked": false,
       "points": [
@@ -122,8 +122,8 @@
           0
         ],
         [
-          121.14292689732167,
-          -2.73936535854574
+          121.94291469029031,
+          -1.235218217558554
         ]
       ],
       "lastCommittedPoint": null,
@@ -186,8 +186,8 @@
     {
       "id": "OEw7tlSGEmM7lgXVJ2pZq",
       "type": "text",
-      "x": 301.92849295479914,
-      "y": 476.25719669886996,
+      "x": 809.1285356794085,
+      "y": 350.65719059535434,
       "width": 585.3795166015625,
       "height": 100,
       "angle": 0,
@@ -203,8 +203,8 @@
       "index": "a7",
       "roundness": null,
       "seed": 384194070,
-      "version": 269,
-      "versionNonce": 231090326,
+      "version": 362,
+      "versionNonce": 1589852242,
       "isDeleted": false,
       "boundElements": [
         {
@@ -212,16 +212,16 @@
           "type": "arrow"
         }
       ],
-      "updated": 1781705727809,
+      "updated": 1784626112643,
       "link": null,
       "locked": false,
-      "text": "FIX:\nImplemented the evalation pipeline by own\n3 matrices, relevance(similarity score), \ngroundness, ans correctness, answer relevance (llm as judge)",
+      "text": "FIX:\nImplemented the evalation pipeline by own\n4 matrices, relevance(similarity score), \ngroundness, ans correctness, answer relevance (llm as judge)",
       "fontSize": 20,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "FIX:\nImplemented the evalation pipeline by own\n3 matrices, relevance(similarity score), \ngroundness, ans correctness, answer relevance (llm as judge)",
+      "originalText": "FIX:\nImplemented the evalation pipeline by own\n4 matrices, relevance(similarity score), \ngroundness, ans correctness, answer relevance (llm as judge)",
       "autoResize": true,
       "lineHeight": 1.25
     },
@@ -230,8 +230,8 @@
       "type": "arrow",
       "x": 620.7285417829241,
       "y": 390.05718449183865,
-      "width": 88,
-      "height": 88.00001525878906,
+      "width": 185.39999389648438,
+      "height": 4.800003051757756,
       "angle": 0,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
@@ -247,11 +247,11 @@
         "type": 2
       },
       "seed": 366954710,
-      "version": 69,
-      "versionNonce": 593536470,
+      "version": 162,
+      "versionNonce": 236740114,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1781705727810,
+      "boundElements": [],
+      "updated": 1784626112644,
       "link": null,
       "locked": false,
       "points": [
@@ -264,8 +264,8 @@
           -4.800003051757756
         ],
         [
-          14.499463398827515,
-          83.2000122070313
+          185.39999389648438,
+          -0.8162529062949488
         ]
       ],
       "lastCommittedPoint": null,
@@ -282,6 +282,43 @@
       "startArrowhead": null,
       "endArrowhead": "arrow",
       "elbowed": false
+    },
+    {
+      "id": "WXU62HtNyW-bm89TnnEIj",
+      "type": "text",
+      "x": 399.32854788643976,
+      "y": 517.8857416425433,
+      "width": 17.639984130859375,
+      "height": 25,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "aA",
+      "roundness": null,
+      "seed": 182511758,
+      "version": 53,
+      "versionNonce": 946144398,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1784626146830,
+      "link": null,
+      "locked": false,
+      "text": "3.",
+      "fontSize": 20,
+      "fontFamily": 5,
+      "textAlign": "left",
+      "verticalAlign": "top",
+      "containerId": null,
+      "originalText": "3.",
+      "autoResize": true,
+      "lineHeight": 1.25
     }
   ],
   "appState": {

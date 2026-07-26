@@ -17,3 +17,5 @@ ragas>=0.4
 pandas
 datasets
 langsmith
+fastapi
+uvicorn
