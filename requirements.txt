@@ -19,3 +19,4 @@ datasets
 langsmith
 fastapi
 uvicorn
+redis
