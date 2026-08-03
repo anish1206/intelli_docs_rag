@@ -41,7 +41,7 @@
 - **Document Parsing:** Docling (heavy ML features disabled for production use)
 - **Embeddings:** SentenceTransformer (all-MiniLM-L6-v2)
 - **Vector Store:** ChromaDB (persistent, cosine distance space)
-- **LLM Backends:** Google Gemini (gemini-2.5-flash), Ollama (qwen2.5:0.5b)
+- **LLM Backends:** Google Gemini (gemini-2.5-flash), Ollama (qwen2.5:7b via Google Colab + Ngrok tunnel)
 - **Framework:** LangChain
 - **Evaluation:** Fully LLM-based judges (4 metrics)
 - **Language:** Python 3.x
@@ -75,6 +75,10 @@
    - ✅ Robust JSON parsing (markdown fence stripping)
    - ✅ Result aggregation (mean/std/min/max) and logging
    - ✅ JSON and CSV output formats
+   - ✅ Incremental JSON save after every question (crash-safe)
+   - ✅ Retrieved chunks logged to console per question (for transparency)
+   - ✅ `build_llm()` dynamically reads `OLLAMA_BASE_URL` from `.env` (supports local + remote Colab tunnel)
+   - ✅ `request_timeout=180.0` added to prevent hangs with large remote models
 
 3. **Enhanced Retrieval System**
    - ✅ Cosine similarity scoring: `sim = 1.0 - float(dist)` (correct formula)
@@ -230,8 +234,8 @@ SUPPORTED_EXTENSIONS = ["*.pdf", "*.ppt", "*.pptx", "*.doc", "*.docx", "*.txt"]
 # LLM Backends
 GEMINI_MODEL = "gemini-2.5-flash"
 GEMINI_TEMPERATURE = 0.3
-OLLAMA_MODEL = "qwen2.5:0.5b"
-OLLAMA_BASE_URL = "http://localhost:11434"
+OLLAMA_MODEL = "qwen2.5:7b"            # Upgraded from 0.5b → 7b (Colab GPU)
+OLLAMA_BASE_URL = "http://localhost:11434"   # Overridden by .env for remote Colab tunnel
 OLLAMA_TEMPERATURE = 0.0
 ```
 
@@ -728,19 +732,35 @@ llm = ChatGoogleGenerativeAI(
 )
 ```
 
-#### 2. Ollama (Local)
+#### 2. Ollama (Local or Remote via Colab + Ngrok)
 
-**Model:** `qwen2.5:0.5b` — used by default in evaluation pipeline
+**Model:** `qwen2.5:7b` — upgraded from `qwen2.5:0.5b` for better evaluation quality.
+
+**Running via Google Colab:**
+Since `qwen2.5:7b` is too large for local CPU inference at a reasonable speed, Ollama is run on a **Google Colab GPU instance** and exposed to the local machine via an **Ngrok tunnel**.
+
+**Setup pattern:**
+1. In Colab: install Ollama, pull the model, run `ollama serve`.
+2. In Colab: install `pyngrok`, create a TCP tunnel on port `11434`.
+3. Copy the `ngrok` public URL (e.g., `https://xxxx.ngrok-free.app`) into your local `.env` as `OLLAMA_BASE_URL`.
+4. The `build_llm()` function in `eval_rag_updated.py` reads this at runtime.
 
 ```python
+# eval/eval_rag_updated.py — build_llm()
 from langchain_ollama import ChatOllama
+
+load_env()
+target_url = os.getenv("OLLAMA_BASE_URL", OLLAMA_BASE_URL)  # Picks up Colab tunnel URL
 
 llm = ChatOllama(
     model=OLLAMA_MODEL,
-    base_url=OLLAMA_BASE_URL,
-    temperature=0.0
+    base_url=target_url,
+    temperature=0.0,
+    request_timeout=180.0,   # Long timeout for remote model over tunnel
 )
 ```
+
+> **Important:** The `.env` file (gitignored) holds the real Ngrok URL. The `.env.example` file holds a placeholder. Never hardcode the Ngrok URL in code.
 
 ### LLM Factory Pattern (`chat.py`)
 
@@ -761,7 +781,7 @@ def build_llm():
 
 ### Design Philosophy
 
-The updated pipeline uses **fully LLM-based evaluation** — no cosine similarity for retrieval relevance. Every metric is judged by the LLM (`qwen2.5:0.5b` via Ollama by default).
+The updated pipeline uses **fully LLM-based evaluation** — no cosine similarity for retrieval relevance. Every metric is judged by the LLM (`qwen2.5:7b` via Ollama, running on Google Colab GPU and exposed via Ngrok tunnel).
 
 The dataset only requires two columns: `Question` and `Reference Answer`.
 
@@ -838,16 +858,24 @@ def run_evaluation():
     embedder  = EmbeddingManager()
     store     = VectorStore(collection_name=COLLECTION_NAME, persist_directory=VECTOR_STORE_DIR)
     retriever = RAGRetriever(store, embedder)
-    llm       = build_llm()   # Ollama by default
+    llm       = build_llm()   # Ollama — local or remote Colab tunnel
 
     for idx, row in df.iterrows():
         answer, context, docs = generate_answer(question, retriever, llm)
+
+        # Log each retrieved chunk to console (added for transparency)
+        for i, doc in enumerate(docs):
+            logger.info("  Context [%d] (sim: %.4f): %s...", i+1, doc.get("similarity") or 0.0, doc["content"][:100])
+
         retrieval_metrics = metric_retrieval_relevance(question, reference, docs, llm)
         answer_metrics    = metric_llm_judges(question, reference, context, answer, llm)
 
         results.append({...})
 
-    # Aggregation: mean/std/min/max for each metric
+        # ✅ Incremental save after every question — prevents data loss on crash/interrupt
+        log_path.write_text(json.dumps({"partial_results": results}, indent=2), encoding="utf-8")
+
+    # Final full save with aggregation: mean/std/min/max for each metric
     summary = {
         "aggregate": {
             "retrieval_hit_at_k":              aggregate_metric(hit_values),
@@ -1036,11 +1064,28 @@ cp .env.example .env
 # Edit .env and set GEMINI_API_KEY
 ```
 
-**Start Ollama (for local eval):**
+**Start Ollama locally (small model):**
 ```bash
 ollama serve
-ollama pull qwen2.5:0.5b
+ollama pull qwen2.5:0.5b   # Lightweight, fast, lower quality
 ```
+
+**Run via Google Colab (recommended — 7B model):**
+1. Open a Colab notebook with GPU runtime (T4 is sufficient).
+2. Install and start Ollama, then pull the model:
+   ```bash
+   !curl -fsSL https://ollama.com/install.sh | sh
+   !ollama serve &
+   !ollama pull qwen2.5:7b
+   ```
+3. Create a public Ngrok tunnel:
+   ```python
+   from pyngrok import ngrok
+   tunnel = ngrok.connect(11434, "tcp")
+   print(tunnel.public_url)  # e.g. tcp://xxxx.ngrok-free.app:PORT
+   ```
+4. Set `OLLAMA_BASE_URL` in your local `.env` to the printed Ngrok URL.
+5. Run the eval script locally — it will route all LLM calls through Colab.
 
 ### Rebuild Vector Store
 
@@ -1081,8 +1126,10 @@ python eval/eval_rag_updated.py
 The CSV dataset at `eval/test_dataset.csv` must have columns: `Question`, `Reference Answer`.
 
 **Output:**
-- `eval/eval_results_<timestamp>.json` — detailed results
+- `eval/eval_results_<timestamp>.json` — detailed results (also saved incrementally after each question)
 - `eval/eval_summary_<timestamp>.csv` — per-question scores
+
+> **Crash Safety:** The JSON file is written after every single question. If the script is interrupted mid-run, you will not lose data already processed.
 
 ### Programmatic Usage
 
@@ -1174,10 +1221,12 @@ LLM_BACKEND         # "gemini" (default) or "ollama"
 | `RateLimitError: API rate limit exceeded` | Gemini API quota hit | Use Ollama for eval; implement backoff |
 | `std::bad_alloc` from Docling | Heavy ML features + large PDF | Use `rebuild_vector_store.py` (light converter, page-by-page) |
 | All retrieved docs empty | Wrong distance formula or threshold too high | Check `hnsw:space=cosine`; set `SCORE_THRESHOLD=0.0` to debug |
+| Eval LLM times out / hangs | Model on Colab too slow or tunnel dropped | Increase `request_timeout` in `build_llm()`; restart Colab + Ngrok tunnel |
+| Eval results not saved after crash | Script crashed before final save block | Results up to last completed question are in the JSON file (incremental save) |
 
 ---
 
-**Document Version:** 2.0  
-**Last Updated:** July 26, 2026  
-**Covers Commits:** `2e41697` → `a131c11` → `e107f97` → `3a55bea`  
-**Status:** Updated — reflects modular architecture, cosine similarity fix, new eval pipeline, memory-safe ingestion
+**Document Version:** 2.1  
+**Last Updated:** August 3, 2026  
+**Covers Commits:** `2e41697` → `a131c11` → `e107f97` → `3a55bea` → (Aug 03 changes)  
+**Status:** Updated — Ollama upgraded to qwen2.5:7b via Google Colab + Ngrok, eval pipeline hardened (incremental saves, chunk logging, dynamic URL, request timeout), pipeline.py cleaned up

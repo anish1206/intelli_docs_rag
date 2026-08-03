@@ -31,17 +31,19 @@ Can have these probs and how to fix them:-
 
 To do:
 [✅] ragas implement kru so eak evaluation matric rahil pratyek stage of project sathi (ragas nahi but self made evaluation pipeline banavli)
-[✅] verfity correctness of how the evalation matrices are been calculated, as of now it is good (only prob in it is using a better model, will fix later)
+[✅] verfity correctness of how the evalation matrices are been calculated, as of now it is good (only prob in it is using a better model, will fix later - Fixed this(used 7B param model instead of 0.5B) , result data - 260803)
 [✅] fixing chunking and [] re ranking - need external lib, so not implemented yet, first fix evals ↑
 (fixed the post retreval, i.e. the coise similairty wala part, by adding "hsnw:space = cosise" in the metadata while creating vectore store)
 
 [✅]Fixed the vector_store rebuilding issue (ran the rebuild scrip in kaggle notebook using gpu, got more chunks and extracted the new vectore store here)
 
-see gpt latest chat to find the next things to do
+[] re ranking and query handling (querry decomposition, query rewriting, query expansion)
+[] also understand about context and its lenth given to the llm, the temperature and all
+[] making the web all full functional (different chats sessions, different vectore stores)
+[] implement guardrils
 
 
 
-[] fixing the retreval issue thus implementing multiquery retreval
 [] implement this pipeline:
 
         data/
