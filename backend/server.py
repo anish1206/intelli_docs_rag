@@ -55,6 +55,7 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     question: str
+    session_id: str = "default"
 
 
 # =========================================================
@@ -123,6 +124,19 @@ def health_check():
     }
 
 # =========================================================
+# SESSION ENDPOINTS
+# =========================================================
+
+@app.get("/sessions")
+def get_sessions():
+    return memory.get_all_sessions()
+
+@app.get("/chat/{session_id}/history")
+def get_chat_history(session_id: str):
+    history = memory.get_history(session_id)
+    return {"history": history}
+
+# =========================================================
 # CHAT ENDPOINT
 # =========================================================
 
@@ -147,11 +161,46 @@ def chat(request: ChatRequest):
     )
 
     # -----------------------------------------------------
+    # 1.5 Handle session registration
+    # -----------------------------------------------------
+
+    session_id = request.session_id
+    # If this is a new session, history will be empty
+    if not memory.get_history(session_id):
+        # Generate a short title from the question (first 5 words)
+        words = question.split()
+        title = " ".join(words[:5]) + ("..." if len(words) > 5 else "")
+        memory.register_session(session_id, title)
+    else:
+        # Just update the timestamp
+        title = memory.redis.get(f"chat:{session_id}:title") or "New Chat"
+        memory.register_session(session_id, title)
+
+    # -----------------------------------------------------
+    # 1.6 Handle generic greetings
+    # -----------------------------------------------------
+    
+    greetings = {"hi", "hello", "hey", "greetings", "good morning", "good evening", "howdy", "sup"}
+    if question.lower() in greetings:
+        answer = "Hello! I am your Intelli Docs assistant. How can I help you with your documents today?"
+        
+        # Store conversation history
+        memory.add_message(role="user", content=question, session_id=session_id)
+        memory.add_message(role="assistant", content=answer, session_id=session_id)
+        
+        return {
+            "question": question,
+            "answer": answer,
+            "sources": [],
+            "from_cache": False,
+        }
+
+    # -----------------------------------------------------
     # 2. Check Redis cache
     # -----------------------------------------------------
 
     cached_response = memory.get_cached_answer(
-        question
+        question, session_id
     )
 
     if cached_response is not None:
@@ -242,11 +291,13 @@ Instructions:
     memory.add_message(
         role="user",
         content=question,
+        session_id=session_id,
     )
 
     memory.add_message(
         role="assistant",
         content=answer,
+        session_id=session_id,
     )
 
     # -----------------------------------------------------
@@ -256,6 +307,7 @@ Instructions:
     memory.cache_answer(
         question=question,
         response=result,
+        session_id=session_id,
     )
 
     logger.info(

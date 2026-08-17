@@ -1,5 +1,5 @@
 Purpose of the project:-
-Building very neive version of notebooklm (just textual output) for myself that can work offline
+Building very neive version of notebooklm (just textual output) for myself that can work offline with agentic feature inccuding reading imp emails and other notes or importantly telligram vit group there are a hell lot of unwanteed mesages, but i want the important ones to be notified to me. via mcp (so as to never miss important emails)
 
 
 Future Plans:-
@@ -37,9 +37,9 @@ To do:
 
 [✅]Fixed the vector_store rebuilding issue (ran the rebuild scrip in kaggle notebook using gpu, got more chunks and extracted the new vectore store here)
 
+[] making the web all full functional (different chats sessions, different vectore stores) and mcp connections for gmail and other things
 [] re ranking and query handling (querry decomposition, query rewriting, query expansion)
 [] also understand about context and its lenth given to the llm, the temperature and all
-[] making the web all full functional (different chats sessions, different vectore stores)
 [] implement guardrils
 
 

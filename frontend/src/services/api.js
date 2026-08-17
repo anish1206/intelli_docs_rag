@@ -32,9 +32,10 @@ export async function checkBackendHealth() {
 /**
  * Send user query to RAG pipeline via backend API
  * @param {string} question - The query string from user
+ * @param {string} sessionId - The ID of the current chat session
  * @returns {Promise<{question: string, answer: string, sources: Array<{content: string, metadata: object, similarity: number}>}>}
  */
-export async function askQuestion(question) {
+export async function askQuestion(question, sessionId = "default") {
   const trimmed = question.trim();
   if (!trimmed) {
     throw new Error('Question cannot be empty.');
@@ -47,7 +48,7 @@ export async function askQuestion(question) {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({ question: trimmed }),
+      body: JSON.stringify({ question: trimmed, session_id: sessionId }),
     });
 
     const data = await response.json();
@@ -60,5 +61,43 @@ export async function askQuestion(question) {
   } catch (error) {
     console.error('Error calling /chat endpoint:', error);
     throw error;
+  }
+}
+
+/**
+ * Fetch all chat sessions
+ * @returns {Promise<Array<{id: string, title: string, timestamp: number}>>}
+ */
+export async function getSessions() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/sessions`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!response.ok) throw new Error('Failed to fetch sessions');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching sessions:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch chat history for a specific session
+ * @param {string} sessionId 
+ * @returns {Promise<Array<{role: string, content: string}>>}
+ */
+export async function getChatHistory(sessionId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/chat/${sessionId}/history`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (!response.ok) throw new Error('Failed to fetch chat history');
+    const data = await response.json();
+    return data.history || [];
+  } catch (error) {
+    console.error('Error fetching chat history:', error);
+    return [];
   }
 }

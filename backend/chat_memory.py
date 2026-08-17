@@ -1,6 +1,7 @@
 import json
 import hashlib
 import redis
+import time
 
 
 class ChatMemory:
@@ -17,21 +18,39 @@ class ChatMemory:
             decode_responses=True,
         )
 
-        # Used to store the conversation history
-        self.history_key = "chat:history"
+    # =========================================================
+    # SESSION MANAGEMENT
+    # =========================================================
 
-        # Prefix used for cached question-answer responses
-        self.cache_prefix = "chat:cache:"
+    def register_session(self, session_id: str, title: str):
+        """Registers a new session with a title and timestamp."""
+        timestamp = time.time()
+        # Add to sorted set of sessions, score is timestamp
+        self.redis.zadd("chat:sessions", {session_id: timestamp})
+        # Store title
+        self.redis.set(f"chat:{session_id}:title", title)
+
+    def get_all_sessions(self):
+        """Returns all sessions sorted by most recent first."""
+        session_ids = self.redis.zrevrange("chat:sessions", 0, -1)
+        sessions = []
+        for sid in session_ids:
+            title = self.redis.get(f"chat:{sid}:title") or "New Chat"
+            timestamp = self.redis.zscore("chat:sessions", sid)
+            sessions.append({
+                "id": sid,
+                "title": title,
+                "timestamp": timestamp
+            })
+        return sessions
 
     # =========================================================
     # QUESTION KEY
     # =========================================================
 
-    def _question_key(self, question: str) -> str:
+    def _question_key(self, question: str, session_id: str = "default") -> str:
         """
-        Converts a question into a stable Redis key.
-
-        The same question will always generate the same key.
+        Converts a question into a stable Redis key for a specific session.
         """
 
         normalized_question = " ".join(question.lower().split())
@@ -40,15 +59,15 @@ class ChatMemory:
             normalized_question.encode("utf-8")
         ).hexdigest()
 
-        return f"{self.cache_prefix}{question_hash}"
+        return f"chat:{session_id}:cache:{question_hash}"
 
     # =========================================================
     # CONVERSATION MEMORY
     # =========================================================
 
-    def add_message(self, role: str, content: str):
+    def add_message(self, role: str, content: str, session_id: str = "default"):
         """
-        Stores one message in the conversation history.
+        Stores one message in the conversation history of a session.
         """
 
         message = {
@@ -57,17 +76,17 @@ class ChatMemory:
         }
 
         self.redis.rpush(
-            self.history_key,
+            f"chat:{session_id}:history",
             json.dumps(message)
         )
 
-    def get_history(self):
+    def get_history(self, session_id: str = "default"):
         """
-        Returns the complete conversation history.
+        Returns the complete conversation history for a session.
         """
 
         messages = self.redis.lrange(
-            self.history_key,
+            f"chat:{session_id}:history",
             0,
             -1
         )
@@ -77,47 +96,35 @@ class ChatMemory:
             for message in messages
         ]
 
-    def clear_history(self):
+    def clear_history(self, session_id: str = "default"):
         """
-        Deletes the current conversation history.
+        Deletes the current conversation history for a session.
         """
 
-        self.redis.delete(self.history_key)
+        self.redis.delete(f"chat:{session_id}:history")
 
     # =========================================================
     # ANSWER CACHE
     # =========================================================
 
-    def cache_answer(self, question: str, response: dict):
+    def cache_answer(self, question: str, response: dict, session_id: str = "default"):
         """
-        Stores the complete RAG response in Redis.
-
-        Example response:
-
-        {
-            "question": "...",
-            "answer": "...",
-            "sources": [...]
-        }
+        Stores the complete RAG response in Redis for a session.
         """
 
-        key = self._question_key(question)
+        key = self._question_key(question, session_id)
 
         self.redis.set(
             key,
             json.dumps(response)
         )
 
-    def get_cached_answer(self, question: str):
+    def get_cached_answer(self, question: str, session_id: str = "default"):
         """
-        Returns the complete cached response.
-
-        Returns:
-            dict  -> cache hit
-            None  -> cache miss
+        Returns the complete cached response for a session.
         """
 
-        key = self._question_key(question)
+        key = self._question_key(question, session_id)
 
         cached_response = self.redis.get(key)
 
@@ -130,15 +137,13 @@ class ChatMemory:
     # CACHE MANAGEMENT
     # =========================================================
 
-    def clear_cache(self):
+    def clear_cache(self, session_id: str = "default"):
         """
-        Deletes all cached question-answer responses.
-
-        Only deletes keys starting with chat:cache:
+        Deletes all cached question-answer responses for a session.
         """
 
         keys = self.redis.keys(
-            f"{self.cache_prefix}*"
+            f"chat:{session_id}:cache:*"
         )
 
         if keys:
