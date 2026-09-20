@@ -83,3 +83,18 @@ Instructions:
 - If multiple documents provide information, synthesize them coherently
 
 Answer:"""
+
+# ---------------------------------------------------------------------------
+# Agentic RAG
+# ---------------------------------------------------------------------------
+# Hard limit on CRAG query-reformulation and hallucination-guard retry loops.
+# Set to 1 to keep round-trip latency predictable over a remote tunnel.
+AGENT_MAX_RETRIES: int = int(os.getenv("AGENT_MAX_RETRIES", "1"))
+
+# Cosine-similarity score below which retrieved chunks are deemed irrelevant
+# and a CRAG reformulation loop is triggered (range: 0.0 – 1.0).
+CRAG_RELEVANCE_THRESHOLD: float = float(os.getenv("CRAG_RELEVANCE_THRESHOLD", "0.5"))
+
+# Number of most-recent conversational turns (user + assistant pairs) that are
+# injected into the context window of the query-rewriter node.
+HISTORY_WINDOW_TURNS: int = int(os.getenv("HISTORY_WINDOW_TURNS", "3"))

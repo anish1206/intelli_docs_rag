@@ -137,6 +137,18 @@
    - ✅ Score threshold filtering post-enhanced-scoring
    - ✅ Source citation formatting
 
+7. **Agentic RAG System (`rag/agent/` & LangGraph)**
+   - ✅ StateGraph workflow with 9 nodes compiled via LangGraph (`rag/agent/graph.py`)
+   - ✅ Multi-turn Contextual Query Rewriter (`rewrite_query_node`)
+   - ✅ Native Tool Calling: `search_notes`, `calculate` (simpleeval), `list_docs`
+   - ✅ Corrective RAG (CRAG) document grader and reformulator (`grade_documents_node`, `reformulate_query_node`)
+   - ✅ In-Loop Hallucination Guard (`hallucination_guard_node`)
+   - ✅ Retry loop caps (`AGENT_MAX_RETRIES`) for retrieval and hallucination loops
+   - ✅ FastAPI Integration returning `agent_metadata` in `/chat` payload
+   - ✅ 100% test coverage with offline pytest suite (`tests/test_agent_*.py`, `tests/test_e2e_agent.py`)
+   - ✅ Interactive live verification CLI script (`eval/test_agent.py`)
+   - ✅ Frontend backward compatibility verified with zero visual modifications
+
 ---
 
 ## Architecture
@@ -191,7 +203,14 @@ inteli_docs_rag/
 ├── rag/                              # Core RAG package
 │   ├── __init__.py                  # Public API exports
 │   ├── config.py                    # Centralized configuration (reads .env)
-│   └── pipeline.py                  # Core RAG logic: EmbeddingManager, VectorStore, RAGRetriever, ask()
+│   ├── pipeline.py                  # Core RAG logic: EmbeddingManager, VectorStore, RAGRetriever, ask()
+│   └── agent/                       # LangGraph Agentic RAG package
+│       ├── __init__.py
+│       ├── state.py                 # Agent state dictionary (AgentState)
+│       ├── tools.py                 # Tools (search_notes, calculate, list_available_notes)
+│       ├── prompts.py               # Prompt templates & response parser helpers
+│       ├── nodes.py                 # Execution nodes & conditional routing decisions
+│       └── graph.py                 # LangGraph StateGraph builder (build_agentic_rag_graph)
 │
 ├── backend/                         # FastAPI application
 │   ├── server.py                    # FastAPI app, routes, LLM init, request handling
@@ -214,7 +233,18 @@ inteli_docs_rag/
 │   ├── vite.config.js               # Vite config (proxy to localhost:8000)
 │   └── package.json
 │
+├── tests/                           # Pytest integration & unit test suite
+│   ├── conftest.py                  # Shared fakeredis fixtures
+│   ├── test_config.py               # Config & environment variable tests
+│   ├── test_chat_memory.py          # Redis ChatMemory tests
+│   ├── test_agent_tools.py          # Tools unit tests
+│   ├── test_agent_nodes.py          # Agent nodes & decision function tests
+│   ├── test_agent_graph.py          # StateGraph compilation & execution tests
+│   ├── test_server.py               # FastAPI server endpoint tests
+│   └── test_e2e_agent.py            # Offline E2E agent workflows & retry cap tests
+│
 ├── eval/                            # Evaluation pipeline
+│   ├── test_agent.py                # ✅ Live agent verification CLI script
 │   ├── eval_rag_updated.py          # ✅ Current evaluation (LLM judges, 4 metrics)
 │   ├── evaluate_rag.py              # Legacy evaluation script
 │   ├── test_dataset.csv             # Evaluation questions (Question + Reference Answer)
@@ -227,7 +257,7 @@ inteli_docs_rag/
 │
 ├── docs/                            # Documentation
 │   ├── memory.md                    # This file
-│   └── tp.txt                       # Scratch / notes
+│   └── agentic_rag_modification_plan.md # Agentic RAG implementation plan
 │
 ├── notebook/                        # Jupyter notebooks
 │   ├── 1_document.ipynb

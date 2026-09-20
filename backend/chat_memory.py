@@ -2,6 +2,7 @@ import json
 import hashlib
 import redis
 import time
+from typing import Optional
 
 
 class ChatMemory:
@@ -102,6 +103,54 @@ class ChatMemory:
         """
 
         self.redis.delete(f"chat:{session_id}:history")
+
+    def get_recent_history_formatted(
+        self, session_id: str, max_turns: Optional[int] = None
+    ) -> str:
+        """Returns the last ``max_turns`` conversational turns as a formatted
+        string suitable for injecting into the query-rewriter prompt.
+
+        Each "turn" is one user message plus one assistant reply, so the
+        method fetches the last ``max_turns * 2`` raw messages.
+
+        Args:
+            session_id: The chat session identifier.
+            max_turns: Number of turns to include. Defaults to
+                ``HISTORY_WINDOW_TURNS`` from ``rag.config`` when *None*.
+
+        Returns:
+            A newline-joined string of ``"Role: content"`` lines, or an
+            empty string ``""`` when the session has no history.
+
+        Examples:
+            >>> mem.get_recent_history_formatted("session-1", max_turns=2)
+            'User: What is PageRank?\\nAssistant: An algorithm...'
+        """
+        # Lazy import avoids a circular dependency at module load time and
+        # keeps this module usable without the full rag package installed.
+        if max_turns is None:
+            from rag.config import HISTORY_WINDOW_TURNS
+            max_turns = HISTORY_WINDOW_TURNS
+
+        history = self.get_history(session_id)
+        if not history:
+            return ""
+
+        # Slice the last max_turns * 2 messages to get complete turn pairs.
+        # If fewer messages exist, slice returns whatever is available.
+        recent = history[-(max_turns * 2):]
+
+        lines: list[str] = []
+        for msg in recent:
+            role: str = msg.get("role", "")
+            content: str = msg.get("content", "")
+            # Skip messages with empty content or unknown roles.
+            if not role or not content:
+                continue
+            lines.append(f"{role.capitalize()}: {content}")
+
+        return "\n".join(lines)
+
 
     # =========================================================
     # ANSWER CACHE

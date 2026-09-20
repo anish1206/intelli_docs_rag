@@ -100,10 +100,15 @@ llm = ChatOllama(
 
 
 # =========================================================
-# INITIALIZE MEMORY
+# INITIALIZE MEMORY & AGENT GRAPH
 # =========================================================
 
 memory = ChatMemory()
+
+from rag.agent.graph import build_agentic_rag_graph
+logger.info("Building Agentic RAG graph...")
+agent_app = build_agentic_rag_graph(retriever=retriever, llm=llm)
+
 
 
 # =========================================================
@@ -219,73 +224,52 @@ def chat(request: ChatRequest):
     )
 
     # -----------------------------------------------------
-    # 3. Retrieve relevant documents
+    # 3. Invoke Agent Graph
     # -----------------------------------------------------
 
-    docs = retriever.retrieve(
-        question
-    )
+    recent_history = memory.get_recent_history_formatted(session_id=session_id)
+
+    initial_state = {
+        "question": question,
+        "session_id": session_id,
+        "history": recent_history,
+        "standalone_query": question,
+        "tool_choice": None,
+        "tool_output": None,
+        "documents": [],
+        "retrieval_retry_count": 0,
+        "hallucination_retry_count": 0,
+        "is_relevant": False,
+        "is_grounded": False,
+        "final_answer": "",
+        "sources": [],
+    }
+
+    final_state = agent_app.invoke(initial_state)
+
+    answer = final_state.get("final_answer", "")
+    sources = final_state.get("sources", [])
+
+    agent_meta = {
+        "standalone_query": final_state.get("standalone_query", question),
+        "tool_choice": final_state.get("tool_choice"),
+        "retrieval_retried": final_state.get("retrieval_retry_count", 0) > 0,
+        "guard_passed": final_state.get("is_grounded", True),
+    }
 
     # -----------------------------------------------------
-    # 4. Format context
-    # -----------------------------------------------------
-
-    context = retriever.format_context(
-        docs
-    )
-
-    # -----------------------------------------------------
-    # 5. Create prompt
-    # -----------------------------------------------------
-
-    prompt = f"""
-You are a helpful assistant that answers questions based on the provided context.
-
-The context contains information from various documents with source citations.
-
-Context:
-{context}
-
-Question:
-{question}
-
-Instructions:
-- Answer the question using only the provided context.
-- If the answer is not in the context, say you don't have enough information.
-- Include source citations in your answer when relevant.
-- Be specific and accurate.
-- If multiple documents provide information, synthesize them coherently.
-"""
-
-    # -----------------------------------------------------
-    # 6. Generate answer using LLM
-    # -----------------------------------------------------
-
-    response = llm.invoke(
-        prompt
-    )
-
-    answer = response.content
-
-    # -----------------------------------------------------
-    # 7. Create complete response object
+    # 4. Create complete response object
     # -----------------------------------------------------
 
     result = {
         "question": question,
         "answer": answer,
-        "sources": [
-            {
-                "content": doc["content"],
-                "metadata": doc["metadata"],
-                "similarity": doc["similarity"],
-            }
-            for doc in docs
-        ],
+        "sources": sources,
+        "agent_metadata": agent_meta
     }
 
     # -----------------------------------------------------
-    # 8. Store conversation history
+    # 5. Store conversation history
     # -----------------------------------------------------
 
     memory.add_message(
@@ -301,7 +285,7 @@ Instructions:
     )
 
     # -----------------------------------------------------
-    # 9. Store complete response in Redis cache
+    # 6. Store complete response in Redis cache
     # -----------------------------------------------------
 
     memory.cache_answer(
@@ -315,11 +299,10 @@ Instructions:
     )
 
     # -----------------------------------------------------
-    # 10. Return response to frontend
+    # 7. Return response to frontend
     # -----------------------------------------------------
 
     return {
         **result,
         "from_cache": False,
-
     }
