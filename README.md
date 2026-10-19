@@ -287,4 +287,4 @@ SCORE_THRESHOLD=0.25         # Minimum similarity score after re-ranking
 
 ---
 
-> Full architecture details, Redis schema, debugging guides, and evaluation methodology: [`docs/memory.md`](docs/memory.md)
+> Full architecture details, Redis schema, debugging guides, and evaluation methodology: [`docs/proj_context.md`](docs/proj_context.md)

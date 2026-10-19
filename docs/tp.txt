@@ -1,8 +1,4 @@
-Purpose of the project:-
-Building very neive version of notebooklm (just textual output) for myself that can work offline with agentic feature inccuding reading imp emails and other notes or importantly telligram vit group there are a hell lot of unwanteed mesages, but i want the important ones to be notified to me. via mcp (so as to never miss important emails)
-
-
-Future Plans:-
+Future Plans (related to RAG):-
     - Choosing right vector store (that supports metadata filtering for hybrid search), compare and write about the choise
     - Hybrid searching (keywords + semantic meaning), merge both results ensembler
 
@@ -21,12 +17,15 @@ Future Plans:-
         - Context precesion, out of retrevied chunks how many were actually usefull - (re ranking chunks)
         - Context recall, how many correct chunks were rtrevied
 
-Can have these probs and how to fix them:-
-    - Empty retrevial -> re write the query and retry, use Hybrid search . if nothings workd then decline correctly that no context found
-    - Low confidence retrevial -> re ranking stratagy
-    - LLM timeout -> add timeout limit else change model
-    - Context overloading -> predict/see context size then change the top k, to be sent to the model
+    Can have these probs and how to fix them:-
+        - Empty retrevial -> re write the query and retry, use Hybrid search . if nothings workd then decline correctly that no context found
+        - Low confidence retrevial -> re ranking stratagy
+        - LLM timeout -> add timeout limit else change model
+        - Context overloading -> predict/see context size then change the top k, to be sent to the model
 
+
+Future Plans (related to agentic system):-
+    - understand the end to end working of the agentic feature
 ==========================================================================================================
 
 To do:
