@@ -1,7 +1,11 @@
 import pytest
 from fastapi.testclient import TestClient
+from backend.llm_client import LlmRequestError
 from unittest.mock import MagicMock, patch
 import sys
+import threading
+import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 # Mock out heavy components before importing server
 sys.modules['langchain_ollama'] = MagicMock()
@@ -18,6 +22,55 @@ def override_memory_redis(fake_redis_client):
     memory.redis = None
 
 class TestServer:
+
+    def test_llm_client_has_finite_timeouts(self):
+        from backend import server
+        assert server.llm.connect_timeout > 0
+        assert server.llm.read_timeout > 0
+        assert server.llm.request_timeout > 0
+
+    @pytest.mark.parametrize("timed_out,status", [(True, 504), (False, 502)])
+    @patch("backend.server.agent_app")
+    def test_llm_failure_is_an_api_error(self, graph, timed_out, status):
+        graph.invoke.side_effect = LlmRequestError(timed_out=timed_out)
+        response = client.post("/chat", json={"question": "Explain this", "session_id": "failure"})
+        assert response.status_code == status
+        assert memory.get_history("failure") == []
+
+    def test_real_graph_timeout_returns_504(self, monkeypatch):
+        from backend import server
+        from backend.llm_client import BoundedOllama
+        from rag.agent.graph import build_agentic_rag_graph
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_POST(self):
+                self.rfile.read(int(self.headers["Content-Length"]))
+                time.sleep(0.3)
+                try:
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(b'{}\n')
+                except (BrokenPipeError, ConnectionResetError):
+                    pass
+
+            def log_message(self, *args):
+                pass
+
+        provider = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=provider.serve_forever, daemon=True)
+        thread.start()
+        try:
+            monkeypatch.setenv("OLLAMA_MAX_RETRIES", "0")
+            monkeypatch.setenv("OLLAMA_REQUEST_TIMEOUT", "0.05")
+            llm = BoundedOllama("model", f"http://127.0.0.1:{provider.server_port}", 0)
+            monkeypatch.setattr(server, "agent_app", build_agentic_rag_graph(MagicMock(), llm))
+            response = client.post("/chat", json={"question": "Explain this", "session_id": "timeout"})
+            assert response.status_code == 504
+            assert memory.get_history("timeout") == []
+        finally:
+            provider.shutdown()
+            provider.server_close()
+            thread.join()
 
     def test_health_check(self):
         response = client.get("/health")
