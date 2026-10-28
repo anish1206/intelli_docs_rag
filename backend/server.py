@@ -2,10 +2,10 @@ import logging
 from pathlib import Path
 import sys
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from langchain_ollama import ChatOllama
+from backend.llm_client import BoundedOllama, LlmRequestError
 
 from rag.pipeline import (
     EmbeddingManager,
@@ -85,14 +85,12 @@ retriever = RAGRetriever(
 # INITIALIZE LLM
 # =========================================================
 
-from langchain_ollama import ChatOllama
-
 from rag.config import (
     OLLAMA_BASE_URL,
     OLLAMA_MODEL,
 )
 
-llm = ChatOllama(
+llm = BoundedOllama(
     model=OLLAMA_MODEL,
     base_url=OLLAMA_BASE_URL,
     temperature=0.0,
@@ -245,7 +243,11 @@ def chat(request: ChatRequest):
         "sources": [],
     }
 
-    final_state = agent_app.invoke(initial_state)
+    try:
+        final_state = agent_app.invoke(initial_state)
+    except LlmRequestError as exc:
+        logger.warning("LLM request failed: %s", exc)
+        raise HTTPException(status_code=504 if exc.timed_out else 502, detail=str(exc)) from exc
 
     answer = final_state.get("final_answer", "")
     sources = final_state.get("sources", [])
